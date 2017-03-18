@@ -84,26 +84,26 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     ekf_.x_ = VectorXd(4);
     ekf_.x_ << 1, 1, 1, 1;
 
-    if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
-      /**
-      Convert radar from polar to cartesian coordinates and initialize state.
-      */
-      double meas_rho = measurement_pack.raw_measurements_[0];
-      double meas_phi = measurement_pack.raw_measurements_[1];
-      double meas_rho_dot = measurement_pack.raw_measurements_[2];
+    switch (measurement_pack.sensor_type_){
+      case MeasurementPackage::RADAR:{
+        double meas_rho = measurement_pack.raw_measurements_[0];
+        double meas_phi = measurement_pack.raw_measurements_[1];
+        double meas_rho_dot = measurement_pack.raw_measurements_[2];
 
-      /**
-       * Rho * Cos(Phi), Rho * Sin(Phi), Rho_dot*cos(Phi), Rho_dot*sin(Phi)
-       */
-      ekf_.x_ << meas_rho * cos(meas_phi) , meas_rho * sin(meas_phi) , meas_rho_dot * cos(meas_phi), meas_rho_dot * sin(meas_phi);
+        /**
+         * Rho * Cos(Phi), Rho * Sin(Phi), Rho_dot*cos(Phi), Rho_dot*sin(Phi)
+         */
+        ekf_.x_ << meas_rho * cos(meas_phi) , meas_rho * sin(meas_phi) , meas_rho_dot * cos(meas_phi), meas_rho_dot * sin(meas_phi);
+      }
+        break;
 
-    }
-    else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
-      /**
-      Initialize state.
-      */
-      ekf_.x_ << measurement_pack.raw_measurements_[0], measurement_pack.raw_measurements_[1], 0, 0;
-
+      case MeasurementPackage::LASER:{
+        /**
+         Initialize state.
+         */
+        ekf_.x_ << measurement_pack.raw_measurements_[0], measurement_pack.raw_measurements_[1], 0, 0;
+      }
+        break;
     }
 
     // done initializing, no need to predict or update
@@ -159,18 +159,23 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
      * Update the state and covariance matrices.
    */
 
-  if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
-    // Radar updates
-    ekf_.R_ = R_radar_;
-    Hj_ = tools.CalculateJacobian(ekf_.x_);
-    ekf_.H_ = Hj_;
-    ekf_.UpdateEKF(measurement_pack.raw_measurements_);
+  switch (measurement_pack.sensor_type_){
+    case MeasurementPackage::RADAR:{
+      // Radar updates
+      ekf_.R_ = R_radar_;
+      Hj_ = tools.CalculateJacobian(ekf_.x_);
+      ekf_.H_ = Hj_;
+      ekf_.UpdateEKF(measurement_pack.raw_measurements_);
+    }
+      break;
 
-  } else {
-    // Laser updates
-    ekf_.R_ = R_laser_;
-    ekf_.H_ = H_laser_;
-    ekf_.Update(measurement_pack.raw_measurements_);
+    case MeasurementPackage::LASER:{
+      // Laser updates
+      ekf_.R_ = R_laser_;
+      ekf_.H_ = H_laser_;
+      ekf_.Update(measurement_pack.raw_measurements_);
+    }
+      break;
 
   }
 
