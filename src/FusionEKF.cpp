@@ -8,6 +8,7 @@ using Eigen::MatrixXd;
 using Eigen::VectorXd;
 using std::vector;
 
+#pragma ide diagnostic ignored "IncompatibleTypes"
 /*
  * Constructor.
  */
