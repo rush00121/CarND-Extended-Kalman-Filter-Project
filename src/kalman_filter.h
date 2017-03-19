@@ -64,7 +64,7 @@ public:
    */
   void UpdateEKF(const Eigen::VectorXd &z);
 
-  double normalize(double i);
+  double Normalize(double i);
 
 };
 

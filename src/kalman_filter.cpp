@@ -19,7 +19,7 @@ void KalmanFilter::Init(VectorXd &x_in, MatrixXd &P_in, MatrixXd &F_in,
   Q_ = Q_in;
 }
 
-double KalmanFilter::normalize(double x){
+double KalmanFilter::Normalize(double x){
   if (x < 0)
     x += 360;
   x = fmod(x + 180,360);
@@ -58,30 +58,33 @@ void KalmanFilter::Update(const VectorXd &z) {
 }
 
 void KalmanFilter::UpdateEKF(const VectorXd &z) {
+  /**
+   TODO:
+     * update the state by using Extended Kalman Filter equations
+   */
 
-  float px = x_[0];
-  float py = x_[1];
-  float vx = x_[2];
-  float vy = x_[3];
-
-  float pxpysqr = px*px + py*py;
-  float pxpysqrt = sqrt(pxpysqr);
-  float rho = pxpysqrt;
-  float phi = 0 ;
-  float rho_dot = 0;
-  if(vx !=0){
-    phi = atan(vy/vx);
-  }
-  if(pxpysqrt > 0.01f){
-    rho_dot = (px*vx + py*vy)/pxpysqrt;
-  }
+  float px = x_(0);
+  float py = x_(1);
+  float vx = x_(2);
+  float vy = x_(3);
   VectorXd z_pred = VectorXd(3);
+  float sqrpxpy = px*px + py*py;
+  float sqrtpxpy = sqrt(sqrpxpy);
 
-  z_pred << rho,phi,rho_dot;
+  float rho = 0 ;
+  float phi = 0 ;
+  float rho_dot = 0 ;
 
+  if (px!=0 && sqrtpxpy > 0.001){
+    rho = sqrtpxpy;
+    phi = atan2(py,px);
+    rho_dot = (px*vx + py*vy)/sqrtpxpy;
+  }
+
+  z_pred << rho , phi , rho_dot;
   VectorXd y = z - z_pred;
 
-  y(1) = normalize(y(1));
+  y(1) = Normalize(y(1));
 
   MatrixXd Ht = H_.transpose();
   MatrixXd S = H_ * P_ * Ht + R_;
@@ -95,11 +98,6 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   MatrixXd I = MatrixXd::Identity(x_size, x_size);
   P_ = (I - K * H_) * P_;
 
-
-  /**
-  TODO:
-    * update the state by using Extended Kalman Filter equations
-  */
 }
 
 //int main(int argc, char* argv[]){
