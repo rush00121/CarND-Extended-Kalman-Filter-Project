@@ -126,6 +126,10 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 
   float dt = (measurement_pack.timestamp_ - previous_timestamp_) / 1000000.0;	//dt - expressed in seconds
   cout << dt << endl;
+
+  /**
+   * If dt is very small, dont predict . Just perform the update operation
+   */
   if(dt >0.01f) {
     previous_timestamp_ = measurement_pack.timestamp_;
 

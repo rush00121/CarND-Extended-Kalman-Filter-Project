@@ -20,8 +20,6 @@ void KalmanFilter::Init(VectorXd &x_in, MatrixXd &P_in, MatrixXd &F_in,
 }
 
 double KalmanFilter::Normalize(double x){
-  if (x < 0)
-    x += 360;
   x = fmod(x + 180,360);
   return x - 180;
 }
@@ -102,10 +100,10 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
 
 //int main(int argc, char* argv[]){
 //  KalmanFilter kf = KalmanFilter();
-//  cout<< kf.normalize(0) <<endl;
-//  cout<< kf.normalize(90)<<endl;
-//  cout<< kf.normalize(180)<<endl;
-//  cout<< kf.normalize(270)<<endl;
-//  cout<< kf.normalize(360)<<endl;
+//  cout<< kf.Normalize(0) <<endl;
+//  cout<< kf.Normalize(90)<<endl;
+//  cout<< kf.Normalize(180)<<endl;
+//  cout<< kf.Normalize(181)<<endl;
+//  cout<< kf.Normalize(360)<<endl;
 //  return 0;
 //}
